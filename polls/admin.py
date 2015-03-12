@@ -7,7 +7,7 @@ from polls.models import Question, Choice, QuestionType
 # adds displaying of related choices to question display
 class ChoiceInline(admin.TabularInline):
     model = Choice
-    extra = 3
+    extra = 2
 
 
 # configure choice type admin display
@@ -32,6 +32,7 @@ class QuestionAdmin(admin.ModelAdmin):
     ]
     inlines = [ChoiceInline]
 
+    list_display = ('question_text', 'pub_date', 'was_published_recently')
 
 # configure choice admin display
 class ChoiceAdmin(admin.ModelAdmin):
