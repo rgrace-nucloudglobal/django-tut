@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseRedirect
 # , Http404
+from django.core.urlresolvers import reverse
 from polls.models import Question
 from django.template import RequestContext, loader
+from models import Choice
+
 # Create your views here.
 
 def index(request):
@@ -20,7 +23,7 @@ def index(request):
     # context = RequestContext(
     #     request, {'latest_question_list': latest_question_list})
     # return HttpResponse(template.render(context))
-    
+
     # yet another optimization
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
     context = {'latest_question_list': latest_question_list}
@@ -46,5 +49,20 @@ def results(request, question_id):
     response = "You are on the results page for question %s."
     return HttpResponse(response % question_id)
 
-def vote(result, question_id):
-    return HttpResponse("You are on the voting page for question %s." % question_id)
+def vote(request, question_id):
+    # return HttpResponse("You are on the voting page for question %s." %
+    # question_id)
+    p = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = p.choice_set.get(pk=request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        return render(request, 'polls/detail.html', {
+            'question': p,
+            'error_message': "You did not select a choice."
+        })
+    else:
+        selected_choice.votes += 1
+        selected_choice.save()
+        # allways return an HttpResponseRedirect after successful handling POST data. 
+        # Prevents double-submission after back-button navigation
+        return HttpResponseRedirect(reverse('polls:results', args=(p.id,)))
