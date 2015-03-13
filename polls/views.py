@@ -22,6 +22,9 @@ def index(request):
     return HttpResponse(template.render(context))
 
 def detail(request, question_id):
+    # initial basic handling that i glazed over before
+    # return HttpResponse("You are looking at question %s." % question_id)
+
     # explicit calls to get question or throw an exept
     #     try:
     #         question = Question.objects.get(pk=question_id)
@@ -32,3 +35,11 @@ def detail(request, question_id):
     # shortcut to the above
     question = get_object_or_404(Question, pk=question_id)
     return render(request, 'polls/detail.html', {'question': question})
+
+
+def results(request, question_id):
+    response = "You are on the results page for question %s."
+    return HttpResponse(response % question_id)
+
+def vote(result, question_id):
+    return HttpResponse("You are on the voting page for question %s." % question_id)
