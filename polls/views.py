@@ -5,6 +5,8 @@ from django.core.urlresolvers import reverse
 from polls.models import Question
 from django.template import RequestContext, loader
 from models import Choice
+# from django.views.generic.list import ListView
+from django.views import generic
 
 # Create your views here.
 
@@ -57,7 +59,7 @@ def vote(request, question_id):
     # question_id)
     p = get_object_or_404(Question, pk=question_id)
     try:
-        selected_choice = p.choice_set.get(pk=request.REQUEST['choice'])
+        selected_choice = p.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
         return render(request, 'polls/detail.html', {
             'question': p,
@@ -69,3 +71,19 @@ def vote(request, question_id):
         # allways return an HttpResponseRedirect after successful handling POST data.
         # Prevents double-submission after back-button navigation
         return HttpResponseRedirect(reverse('polls:results', args=(p.id,)))
+
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_question_list'
+
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Question.objects.order_by('-pub_date')[:5]
+
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'polls/detail.html'
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
