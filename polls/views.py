@@ -15,11 +15,16 @@ def index(request):
     #     return HttpResponse(output)
 
     # this group consumes a template to display the same list as above
+    # latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    # template = loader.get_template('polls/index.html')
+    # context = RequestContext(
+    #     request, {'latest_question_list': latest_question_list})
+    # return HttpResponse(template.render(context))
+    
+    # yet another optimization
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    template = loader.get_template('polls/index.html')
-    context = RequestContext(
-        request, {'latest_question_list': latest_question_list})
-    return HttpResponse(template.render(context))
+    context = {'latest_question_list': latest_question_list}
+    return render(request, 'polls/index.html', context)
 
 def detail(request, question_id):
     # initial basic handling that i glazed over before
